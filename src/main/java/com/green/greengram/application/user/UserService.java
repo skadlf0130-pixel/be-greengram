@@ -11,7 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
+
 import java.io.IOException;
 
 @Slf4j
@@ -28,8 +28,8 @@ public class UserService {
         req.setUpw(hashedPw);
 
         //파일 업로드가 되었으면 저장하는 파일명을 테이블에 저장
-        String savePicFileName = mf == null ? null : myFileUtil.makeRandomFileName(mf);
-        req.setPic(savePicFileName);
+        String savedPicFileName = mf == null ? null : myFileUtil.makeRandomFileName(mf);
+        req.setPic(savedPicFileName);
 
         //회원가입한 유저의 id값을 얻어오고 싶다.
         int result = userMapper.signUp(req);
@@ -39,16 +39,16 @@ public class UserService {
             //폴더만들기
             myFileUtil.makeFolders(middlePath);
 
-            String fullFilePath = String.format("%s/%s", middlePath, savePicFileName);
+            String fullFilePath = String.format("%s/%s", middlePath, savedPicFileName);
 
             try {
-                myFileUtil.transferTo(mf,fullFilePath);
+                myFileUtil.transferTo(mf, fullFilePath);
             } catch (IOException e) {
                 e.printStackTrace(); // 오류메세지 콘솔에 출력
             }
         }
 
-        return userMapper.signUp(req);
+        return result;
     }
 
     public UserSignInRes signIn(UserSignInReq req) {
@@ -65,6 +65,7 @@ public class UserService {
         return UserSignInRes.builder()
                             .signedUserId( res.getId() )
                             .nm( res.getNm() )
+                            .pic( res.getPic() )
                             .build();
     }
 }

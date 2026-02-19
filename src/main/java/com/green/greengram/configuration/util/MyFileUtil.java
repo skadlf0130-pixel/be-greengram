@@ -27,7 +27,7 @@ public class MyFileUtil {
         File file = new File(fileUploadPath, path);
 
         //해당 경로의 디렉토리가 없다면 디렉토리를 생성한다.
-        if( !file.exists()){ //해당경로의 디렉토리가 없다면
+        if(!file.exists()){ //해당경로의 디렉토리가 없다면
             file.mkdirs(); //폴더를 만든다. mkdirs는 중간경로의 디렉토리가 없어도 전부 디렉토리 만들어준다.
         }
     }

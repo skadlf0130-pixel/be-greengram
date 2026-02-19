@@ -24,7 +24,7 @@ public class UserController {
     * 조금 다른게 받아야 한다. @RequestPart로 받아야한다. @RequestBody 사용 X.
     * req는 파일을 제외한 데이터(uid, upq, nm 데이터들)
     * pic은 프로파일 이미지 파일 */
-    @PostMapping("/signup")
+    @PostMapping("/sign-up")
     public ResultResponse<?> signUp(@RequestPart UserSignUpReq req
                                     , @RequestPart (required = false)MultipartFile pic) {
         log.info("req: {}", req);
@@ -32,7 +32,7 @@ public class UserController {
         return new ResultResponse<>("회원가입 성공", result);
     }
 
-    @PostMapping("/signin")
+    @PostMapping("/sign-in")
     public ResultResponse<?> signIn(HttpServletResponse res, @RequestBody UserSignInReq req) {
         log.info("req: {}", req);
         UserSignInRes userSignInRes = userService.signIn(req);
@@ -43,7 +43,7 @@ public class UserController {
         }
         return new ResultResponse<>(userSignInRes == null ? "아이디/비밀번호를 확인해주세요." : "로그인 성공", userSignInRes);
     }
-    @PostMapping("/signOut")
+    @PostMapping("/sign-out")
     public ResultResponse<?> signOut(HttpServletResponse res) {
         jwtTokenManager.singOut(res);
         return new ResultResponse<>("로그아웃 성공", 1);
