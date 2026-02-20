@@ -1,0 +1,21 @@
+package com.green.greengram.application.feed;
+
+import com.green.greengram.application.feed.model.FeedGetReq;
+import com.green.greengram.application.feed.model.FeedGetRes;
+import com.green.greengram.application.feed.model.FeedPostReq;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+@Mapper
+public interface FeedMapper {
+    int save(FeedPostReq req);
+    List<FeedGetRes> findAll(FeedGetReq req);
+
+    int savePics(@Param("feedId") long feedId
+                ,@Param("picSaveNames") List<String> picSavedNames);
+
+
+}
+
