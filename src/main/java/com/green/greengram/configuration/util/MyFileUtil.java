@@ -59,6 +59,13 @@ public class MyFileUtil {
         File file = new File(fileUploadPath, targetPath);
         mf.transferTo(file);
     }
+
+    public void deleteFile(String path) {
+        File file = new File(fileUploadPath, path);
+        if(file.exists()) {
+            file.delete();
+        }
+    }
 }
 
 

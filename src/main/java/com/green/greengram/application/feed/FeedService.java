@@ -35,6 +35,11 @@ public class FeedService {
     }
     public List<FeedGetRes> getFeedList(FeedGetReq req){
         List<FeedGetRes> list = feedMapper.findAll(req);
+        //작업!! 피드당 사진정보를 가져오는 작업을 해야한다.
+        for(FeedGetRes res : list) {
+            List<String> pics = feedMapper.findPicsById(res.getId());
+            res.setPics(pics);
+        }
         return list;
     }
 }

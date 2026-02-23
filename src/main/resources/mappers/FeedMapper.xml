@@ -11,12 +11,15 @@
     <select id="findAll">
         SELECT f.id, f.contents, f.location, f.created_at
         , u.id AS writerUserId
-        , u.uid AS writherUid
+        , u.uid AS writerUid
         , u.nm AS writerNickName
         , u.pic AS writerPic
         FROM feed f
         JOIN user u
-        ON  f.user_id = u.id
+        ON u.id = f.user_id
+        <if test=" profileUserId != null and profileUserId > 0 ">
+            WHERE f.user_id = #{profileUserId}
+        </if>
         ORDER BY f.id DESC
         LIMIT #{startIdx}, #{size}
     </select>
@@ -30,7 +33,10 @@
         </foreach>
     </insert>
 
-
-
+    <select id="findPicsById">
+        SELECT pic
+        FROM feed_pic
+        WHERE feed_id = #{feedId}
+    </select>
 
 </mapper>

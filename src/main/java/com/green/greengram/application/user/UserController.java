@@ -1,14 +1,14 @@
 package com.green.greengram.application.user;
 
-import com.green.greengram.application.user.model.UserSignInReq;
-import com.green.greengram.application.user.model.UserSignInRes;
-import com.green.greengram.application.user.model.UserSignUpReq;
+import com.green.greengram.application.user.model.*;
 import com.green.greengram.configuration.model.JwtUser;
 import com.green.greengram.configuration.model.ResultResponse;
+import com.green.greengram.configuration.model.UserPrincipal;
 import com.green.greengram.configuration.security.JwtTokenManager;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -48,5 +48,22 @@ public class UserController {
         jwtTokenManager.singOut(res);
         return new ResultResponse<>("로그아웃 성공", 1);
     }
+    @GetMapping("/profile")
+    public ResultResponse<?> getProfileUser(@AuthenticationPrincipal UserPrincipal userPrincipal
+            , @RequestParam("profile_user_id") long profileUserId) {
+        UserProfileGetReq req = new UserProfileGetReq( profileUserId, userPrincipal.getSignedUserId() );
+        log.info("req: {}", req);
+        UserProfileGetRes res = userService.getProfileUser(req);
+        return new ResultResponse<>("프로파일 유저 정보", res);
+    }
+
+    @PatchMapping("/profile/pic")
+    public ResultResponse<?> patchProfileUserPic(@AuthenticationPrincipal UserPrincipal userPrincipal
+            , @RequestPart MultipartFile pic) {
+        String savedFileName = userService.patchProfilePic(userPrincipal.getSignedUserId(), pic);
+        return new ResultResponse<>("프로파일 유저 사진 수정",savedFileName);
+    }
+
+
 
 }
