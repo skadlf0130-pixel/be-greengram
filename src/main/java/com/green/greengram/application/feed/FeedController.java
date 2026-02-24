@@ -1,5 +1,6 @@
 package com.green.greengram.application.feed;
 
+
 import com.green.greengram.application.feed.model.FeedGetReq;
 import com.green.greengram.application.feed.model.FeedGetRes;
 import com.green.greengram.application.feed.model.FeedPostReq;
@@ -25,7 +26,6 @@ public class FeedController {
     public ResultResponse<?> postFeed(@AuthenticationPrincipal UserPrincipal userPrincipal
             , @RequestPart FeedPostReq req
             , @RequestPart(name = "pic") List<MultipartFile> pics) {
-
         log.info("req: {}", req);
         log.info("pics.size(): {}", pics.size());
         req.setSignedUserId(userPrincipal.getSignedUserId());
@@ -34,8 +34,10 @@ public class FeedController {
     }
 
     @GetMapping
-    public ResultResponse<?> getFeedList(@ModelAttribute FeedGetReq req){
-        log.info("req:{} ", req);
+    public ResultResponse<?> getFeedList(@AuthenticationPrincipal UserPrincipal userPrincipal
+            , @ModelAttribute FeedGetReq req ) {
+        req.setSignedUserId( userPrincipal.getSignedUserId() );
+        log.info( "req: {}", req );
         List<FeedGetRes> list = feedService.getFeedList(req);
         return new ResultResponse<>("success", list);
     }

@@ -9,18 +9,17 @@ import java.util.List;
 
 @Getter
 @Setter
-
 public class FeedGetRes {
-    @JsonProperty("feedId") // JSON으로 변경될 때 key값이 feedId로 변경
+    @JsonProperty("feedId") //JSON으로 변경될 때 key 값이 feedId로 변경된다.
     private long id;
     private String contents;
     private String location;
     private String createdAt;
     private long writerUserId;
-    private String writherUid;
+    private String writerUid;
     private String writerNickName;
     private String writerPic;
-    private int isLike;
-    private int likeCount;
+    private int isLike; //내가 이 FEED를 좋아요를 했나? 했으면 1 아니면 0
+    private int likeCount; //해당 피드에 좋아요 한 수
     private List<String> pics = new ArrayList<>();
 }

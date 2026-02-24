@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.green.greengram.application.feed.FeedMapper">
-    <insert id="save" useGeneratedKeys="true" keyProperty="feedId" >
+    <insert id="save" useGeneratedKeys="true" keyProperty="feedId">
         INSERT INTO feed
-            SET   location = #{location}
-                , contents = #{contents}
-                ,  user_id = #{signedUserId}
+        SET location = #{location}
+        , contents = #{contents}
+        , user_id = #{signedUserId}
     </insert>
 
     <select id="findAll">
@@ -14,9 +14,20 @@
         , u.uid AS writerUid
         , u.nm AS writerNickName
         , u.pic AS writerPic
+        , fl.feed_id IS NOT NULL AS isLike
+        , IFNULL(flc.likeCount, 0) AS likeCount
         FROM feed f
         JOIN user u
         ON u.id = f.user_id
+        LEFT JOIN feed_like AS fl
+        ON fl.feed_id = f.id
+        AND fl.user_id = #{signedUserId}
+        LEFT JOIN (
+        SELECT feed_id, COUNT(feed_id) AS likeCount
+        FROM feed_like
+        GROUP BY feed_id
+        ) AS flc
+        ON flc.feed_id = f.id
         <if test=" profileUserId != null and profileUserId > 0 ">
             WHERE f.user_id = #{profileUserId}
         </if>
@@ -24,12 +35,13 @@
         LIMIT #{startIdx}, #{size}
     </select>
 
+
     <insert id="savePics">
         INSERT INTO feed_pic
-        (feed_id, pic)
+        ( feed_id, pic )
         VALUES
-        <foreach collection="picSaveNames" item="v" separator=",">
-           ( #{feedId}, #{v} )
+        <foreach collection="picSavedNames" item="v" separator=",">
+            ( #{feedId}, #{v} )
         </foreach>
     </insert>
 
@@ -38,5 +50,4 @@
         FROM feed_pic
         WHERE feed_id = #{feedId}
     </select>
-
 </mapper>
