@@ -20,13 +20,15 @@ public class UserController {
     private final UserService userService;
     private final JwtTokenManager jwtTokenManager;
 
-    /*파일업로드는 Multipart라는 기술로 파일업로드를 할건데 FE JSON을 보내지만
-    * 조금 다른게 받아야 한다. @RequestPart로 받아야한다. @RequestBody 사용 X.
-    * req는 파일을 제외한 데이터(uid, upq, nm 데이터들)
-    * pic은 프로파일 이미지 파일 */
+    /* file upload는 Multipart 라는 기술로 파일 업로드를 할건데 FE JSON을 보내지만 조금
+     * 다르게 받아야 한다. @RequestPart로 받아야 한다.
+     * req는 파일을 제외한 데이터(uid, upw, nm 데이터들)
+     * pic은 프로파일 이미지 파일
+     *  */
     @PostMapping("/sign-up")
     public ResultResponse<?> signUp(@RequestPart UserSignUpReq req
-                                    , @RequestPart (required = false)MultipartFile pic) {
+            , @RequestPart(required = false) MultipartFile pic
+    ) {
         log.info("req: {}", req);
         int result = userService.signUp(req, pic);
         return new ResultResponse<>("회원가입 성공", result);
@@ -41,16 +43,18 @@ public class UserController {
             JwtUser jwtUser = new JwtUser( userSignInRes.getSignedUserId() );
             jwtTokenManager.issue(res, jwtUser);
         }
-        return new ResultResponse<>(userSignInRes == null ? "아이디/비밀번호를 확인해주세요." : "로그인 성공", userSignInRes);
+        return new ResultResponse<>(userSignInRes == null ? "아이디/비밀번호를 확인해 주세요." : "로그인 성공", userSignInRes);
     }
+
     @PostMapping("/sign-out")
     public ResultResponse<?> signOut(HttpServletResponse res) {
-        jwtTokenManager.singOut(res);
+        jwtTokenManager.signOut(res);
         return new ResultResponse<>("로그아웃 성공", 1);
     }
+
     @GetMapping("/profile")
     public ResultResponse<?> getProfileUser(@AuthenticationPrincipal UserPrincipal userPrincipal
-            , @RequestParam("profile_user_id") long profileUserId) {
+            , @RequestParam long profileUserId) {
         UserProfileGetReq req = new UserProfileGetReq( profileUserId, userPrincipal.getSignedUserId() );
         log.info("req: {}", req);
         UserProfileGetRes res = userService.getProfileUser(req);
@@ -61,9 +65,12 @@ public class UserController {
     public ResultResponse<?> patchProfileUserPic(@AuthenticationPrincipal UserPrincipal userPrincipal
             , @RequestPart MultipartFile pic) {
         String savedFileName = userService.patchProfilePic(userPrincipal.getSignedUserId(), pic);
-        return new ResultResponse<>("프로파일 유저 사진 수정",savedFileName);
+        return new ResultResponse<>("프로파일 유저 사진 수정", savedFileName);
     }
 
-
-
+    @DeleteMapping("/profile/pic")
+    public ResultResponse<?> patchProfileUserPic(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        userService.deleteProfilePic( userPrincipal.getSignedUserId() );
+        return new ResultResponse<>("프로파일 이미지 삭제 완료", null);
+    }
 }

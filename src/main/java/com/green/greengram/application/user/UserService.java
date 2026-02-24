@@ -1,14 +1,12 @@
 package com.green.greengram.application.user;
 
 import com.green.greengram.application.user.model.*;
-import com.green.greengram.configuration.model.ResultResponse;
 import com.green.greengram.configuration.util.MyFileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 
 import java.io.IOException;
 
@@ -21,7 +19,7 @@ public class UserService {
     private final MyFileUtil myFileUtil;
 
     public int signUp(UserSignUpReq req, MultipartFile mf) {
-        String hashedPw = passwordEncoder.encode(req.getUpw());
+        String hashedPw = passwordEncoder.encode( req.getUpw() );
         log.info("hashedPw: {}", hashedPw);
         req.setUpw(hashedPw);
 
@@ -31,10 +29,11 @@ public class UserService {
 
         //회원가입한 유저의 id값을 얻어오고 싶다.
         int result = userMapper.signUp(req);
-        if (mf != null) {
+        if( mf != null ) {
             long id = req.getId(); //프로파일 이미지 저장하는 규칙이 있는데 pk값의 폴더를 만들고 거기에 이미지 파일을 저장한다.
-            String middlePath = String.format("user/%d", id); //String.format 문자열을 만드는 메서드
-            //폴더만들기
+            //String middlePath = String.format("user/%d", id);
+            String middlePath = "user/" + id;
+            //폴더 만들기
             myFileUtil.makeFolders(middlePath);
 
             String fullFilePath = String.format("%s/%s", middlePath, savedPicFileName);
@@ -42,7 +41,7 @@ public class UserService {
             try {
                 myFileUtil.transferTo(mf, fullFilePath);
             } catch (IOException e) {
-                e.printStackTrace(); // 오류메세지 콘솔에 출력
+                e.printStackTrace(); //오류 메세지 콘솔에 출력
             }
         }
 
@@ -50,9 +49,9 @@ public class UserService {
     }
 
     public UserSignInRes signIn(UserSignInReq req) {
-        UserGetOneRes res = userMapper.findByUid(req.getUid());
+        UserGetOneRes res = userMapper.findByUid( req.getUid() );
         log.info("res: {}", res);
-        if (!passwordEncoder.matches(req.getUpw(), res.getUpw())) {
+        if(!passwordEncoder.matches(req.getUpw(), res.getUpw())) {
             return null;
         }
         //로그인 성공!! 예전에는 AT, RT을 FE전달  >>> 보안 쿠키 이용
@@ -61,19 +60,19 @@ public class UserService {
 //        String refreshToken = jwtTokenProvider.generateRefreshToken(jwtUser);
 
         return UserSignInRes.builder()
-                .signedUserId(res.getId())
-                .nm(res.getNm())
-                .pic(res.getPic())
+                .signedUserId( res.getId() )
+                .nm( res.getNm() )
+                .pic( res.getPic() )
                 .build();
     }
 
-    public UserProfileGetRes getProfileUser(UserProfileGetReq req) {
+    public UserProfileGetRes getProfileUser (UserProfileGetReq req) {
         return userMapper.findProfileUser(req);
     }
 
     public String patchProfilePic(long signedUserId, MultipartFile pic) {
         //기존 프로파일 사진은 삭제, 기존 파일명을 구해야 함.
-        UserGetOneRes res = userMapper.findById(signedUserId);
+        UserGetOneRes res = userMapper.findById( signedUserId );
         String folderPath = String.format("user/%d", signedUserId);
 
         //파일 삭제 고고!!
@@ -95,10 +94,23 @@ public class UserService {
 
         //DB 수정처리
         UserUpdDto dto = UserUpdDto.builder()
-                .id(signedUserId)
-                .pic(saveFileName)
+                .id( signedUserId )
+                .pic( saveFileName )
                 .build();
         userMapper.updUser(dto);
         return saveFileName;
+    }
+
+    public void deleteProfilePic(long signedUserId) {
+        //폴더 째로 삭제
+        String absolutePath = String.format("%s/user/%d", myFileUtil.fileUploadPath, signedUserId);
+        myFileUtil.deleteDirectory( absolutePath );
+
+        //user테이블의 해당 row의 pic 컬럼의 값을 null로 변경
+        UserUpdDto dto = UserUpdDto.builder()
+                .id( signedUserId )
+                .pic( "" )
+                .build();
+        userMapper.updUser(dto);
     }
 }

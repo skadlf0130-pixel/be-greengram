@@ -82,7 +82,7 @@ public class JwtTokenManager { //인증 처리 총괄
 
     }
 
-    public void singOut(HttpServletResponse res){
+    public void signOut(HttpServletResponse res){
         deleteAccessTokenInCookie(res);
         deleteRefreshTokenInCookie(res);
     }
