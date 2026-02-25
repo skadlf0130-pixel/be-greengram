@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 public interface UserMapper {
     int signUp(UserSignUpReq req);
     UserGetOneRes findByUid(String uid);
+    UserGetOneRes findById(long id);
     UserProfileGetRes findProfileUser (UserProfileGetReq req);
-    UserGetOneRes findById(long signedUserId);
     int updUser(UserUpdDto dto);
 }

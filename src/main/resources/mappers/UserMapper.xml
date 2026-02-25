@@ -3,16 +3,16 @@
 <mapper namespace="com.green.greengram.application.user.UserMapper">
     <insert id="signUp" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO user
-           SET uid = #{uid}
-             , upw = #{upw}
-             , nm = #{nm}
-             , pic = #{pic}
+        SET uid = #{uid}
+        , upw = #{upw}
+        , nm = #{nm}
+        , pic = #{pic}
     </insert>
 
     <select id="findByUid">
-        SELECT id, uid, upw, nm, pic, created_at AS createdAt
-          FROM user
-         WHERE uid = #{uid}
+        SELECT id, uid, upw, nm, pic, created_at
+        FROM user
+        WHERE uid = #{uid}
     </select>
 
     <select id="findById">
@@ -24,9 +24,17 @@
     <select id="findProfileUser">
         SELECT u.id, u.pic, u.created_at, u.uid, u.nm
         , count(DISTINCT f.id) AS feedCount
+        , COUNT(DISTINCT ff.from_user_id, ff.to_user_id) AS followingCount
+        , COUNT(DISTINCT tf.from_user_id, tf.to_user_id) AS followerCount
+        , MAX(DISTINCT if(tf.from_user_id = #{signedUserId}, 1, 0))
+        + MAX(DISTINCT if(ff.to_user_id = #{signedUserId}, 2, 0)) AS followState
         FROM user u
         LEFT JOIN feed f
         ON f.user_id = u.id
+        LEFT JOIN user_follow ff
+        ON ff.from_user_id = u.id
+        LEFT JOIN user_follow tf
+        ON tf.to_user_id = u.id
         WHERE u.id = #{profileUserId}
     </select>
 
