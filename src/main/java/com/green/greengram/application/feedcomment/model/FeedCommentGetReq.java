@@ -1,9 +1,9 @@
 package com.green.greengram.application.feedcomment.model;
 
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
+
 public class FeedCommentGetReq {
     private int page;
     private long feedId;
