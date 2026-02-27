@@ -1,3 +1,4 @@
+
 package com.green.greengram.application.feed;
 
 
@@ -38,12 +39,13 @@ public class FeedController {
         List<FeedGetRes> list = feedService.getFeedList(req);
         return new ResultResponse<>("success", list);
     }
+
     @DeleteMapping
     public ResultResponse<?> deleteFeed(@AuthenticationPrincipal UserPrincipal userPrincipal
-                                        , @ModelAttribute FeedDeleteReq req){
-        req.setSignedUserId( userPrincipal.getSignedUserId());
+            , @ModelAttribute FeedDeleteReq req) {
+        req.setSignedUserId( userPrincipal.getSignedUserId() );
+        log.info("req: {}", req);
         int result = feedService.deleteFeed(req);
         return new ResultResponse<>("success", result);
-
     }
 }

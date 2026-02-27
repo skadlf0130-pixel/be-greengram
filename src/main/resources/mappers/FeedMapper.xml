@@ -45,28 +45,27 @@
     <delete id="delete">
         DELETE FROM feed
         WHERE id = #{feedId}
-        ANd user_id = #{signedUserId}
-
+        AND user_id = #{signedUserId}
     </delete>
 
     <delete id="deleteRef">
         DELETE fc, fl, fp
-          FROM feed f
-          LEFT JOIN feed_comment fc
-            ON fc.feed_id = f.id
-          LEFT JOIN feed_like fl
-            ON fl.feed_id = f.id
-          LEFT JOIN feed_pic fp
-            ON fp.feed_id = f.id
-         WHERE f.id = #{feedId}
-           AND f.user_id = #{signedUserId}
+        FROM feed f
+        LEFT JOIN feed_comment fc
+        ON fc.feed_id = f.id
+        LEFT JOIN feed_like fl
+        ON fl.feed_id = f.id
+        LEFT JOIN feed_pic fp
+        ON fp.feed_id = f.id
+        WHERE f.id = #{feedId}
+        AND f.user_id = #{signedUserId}
     </delete>
 
     <insert id="savePics">
         INSERT INTO feed_pic
         ( feed_id, pic )
         VALUES
-        <foreach collection="picSaveNames" item="v" separator=",">
+        <foreach collection="picSavedNames" item="v" separator=",">
             ( #{feedId}, #{v} )
         </foreach>
     </insert>
@@ -76,4 +75,5 @@
         FROM feed_pic
         WHERE feed_id = #{feedId}
     </select>
+
 </mapper>

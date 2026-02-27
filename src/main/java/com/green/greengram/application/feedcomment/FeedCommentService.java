@@ -27,6 +27,6 @@ public class FeedCommentService {
     }
 
     public int deleteFeedComment(FeedCommentDeleteReq req) {
-       return feedCommentMapper.delete(req);
+        return feedCommentMapper.delete(req);
     }
 }

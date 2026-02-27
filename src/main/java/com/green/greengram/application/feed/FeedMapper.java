@@ -1,3 +1,4 @@
+
 package com.green.greengram.application.feed;
 
 import com.green.greengram.application.feed.model.FeedDeleteReq;
@@ -13,10 +14,12 @@ import java.util.List;
 public interface FeedMapper {
     int save(FeedPostReq req);
     List<FeedGetRes> findAll(FeedGetReq req);
-    int savePics(@Param("feedId") long feedId
-                ,@Param("picSaveNames") List<String> picSavedNames);
-    List<String> findPicsById(long feedId);
     int delete(FeedDeleteReq req);
-    void deleteRef(FeedDeleteReq req);
-}
+    int deleteRef(FeedDeleteReq req);
 
+    int savePics(@Param("feedId") long feedId
+            , @Param("picSavedNames") List<String> picSavedNames);
+
+    List<String> findPicsById(long feedId);
+
+}

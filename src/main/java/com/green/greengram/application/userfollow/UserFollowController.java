@@ -12,26 +12,24 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/user/follow")
-public class userFollowController {
+public class UserFollowController {
     private final UserFollowService userFollowService;
 
     @PostMapping
     public ResultResponse<?> postUserFollow(@AuthenticationPrincipal UserPrincipal userPrincipal
-                                          , @RequestBody UserFollowReq req){
-        req.setFromUserId(userPrincipal.getSignedUserId());
+            , @RequestBody UserFollowReq req) {
+        req.setFromUserId( userPrincipal.getSignedUserId() );
+        log.info("req: {}", req);
         int result = userFollowService.postUserFollow(req);
         return new ResultResponse<>("팔로우 등록", result);
     }
 
     @DeleteMapping
-    public ResultResponse<Integer> deleteUserFollow(@AuthenticationPrincipal UserPrincipal userPrincipal
-                                                  ,@RequestParam long toUserId) { // 쿼리스트링을 받기 위해 Param을 사용
-
-        UserFollowReq req = new UserFollowReq();
-        req.setFromUserId(userPrincipal.getSignedUserId());
-        req.setToUserId(toUserId);
+    public ResultResponse<?> deleteUserFollow(@AuthenticationPrincipal UserPrincipal userPrincipal
+            , @ModelAttribute UserFollowReq req) {
+        req.setFromUserId( userPrincipal.getSignedUserId() );
+        log.info("req: {}", req);
         int result = userFollowService.deleteUserFollow(req);
         return new ResultResponse<>("팔로우 취소", result);
     }
-
 }

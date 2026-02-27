@@ -1,3 +1,4 @@
+
 constants:   # 커스텀 속성
   jwt:
     issuer: green502@green.com # JWT 토큰 발행자 정보
@@ -26,6 +27,11 @@ spring:
   servlet:
     multipart:
       max-file-size: 15MB
+
+logging:
+  level:
+    jdbc.connection : INFO
+    com.zaxxer.hikari.HikariDataSource: INFO
 
 mybatis: # Mybatis 세팅
   configuration:

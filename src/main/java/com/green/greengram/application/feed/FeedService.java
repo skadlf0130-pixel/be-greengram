@@ -8,8 +8,11 @@ import com.green.greengram.configuration.util.ImgUploadManager;
 import com.green.greengram.configuration.util.MyFileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -20,8 +23,10 @@ public class FeedService {
     private final FeedMapper feedMapper;
     private final ImgUploadManager imgUploadManager;
     private final MyFileUtil myFileUtil;
+
+    @Transactional
     public FeedPostRes postFeed(FeedPostReq req, List<MultipartFile> pics) {
-        feedMapper.save(req);
+        int saveAffectedRows = feedMapper.save(req);
 
         //save이후에 방금 insert한 feed테이블의 id값이 필요해요.
         long feedId = req.getFeedId();
@@ -29,8 +34,16 @@ public class FeedService {
 
         //saveFeedPics메소드 호출하고 싶다!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         List<String> picSavedNames = imgUploadManager.saveFeedPics(feedId, pics);
-        feedMapper.savePics(feedId, picSavedNames);
 
+        try {
+            feedMapper.savePics(feedId, picSavedNames);
+        } catch (Exception e) {
+            //사진을 지운다.
+            String directoryPath = String.format("%s/feed/%d", myFileUtil.fileUploadPath, feedId);
+            log.info("directoryPath: {}", directoryPath);
+            myFileUtil.deleteDirectory(directoryPath);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "SQL Syntax Error 발생");
+        }
         return new FeedPostRes(feedId, picSavedNames);
     }
 
@@ -45,14 +58,16 @@ public class FeedService {
         return list;
     }
 
-    public int deleteFeed(FeedDeleteReq req){
-        //feed_id, feed_like, feed_comment에 feedId가 사용된 모든 row삭제
+    @Transactional
+    public int deleteFeed(FeedDeleteReq req) {
+
+        //feed_pic, feed_like, feed_comment에 feedId가 사용된 모든 row를 삭제
         feedMapper.deleteRef(req);
 
-        //feed 테이블의 row는 가장 마지막에 삭제
+        //feed 테이블의 row는 가장 마지막에 삭제처리
         feedMapper.delete(req);
 
-        //폴더  삭제
+        // 폴더 째 삭제
         String delDirectoryPath = String.format("%s/feed/%d", myFileUtil.fileUploadPath, req.getFeedId());
         myFileUtil.deleteDirectory(delDirectoryPath);
         return 1;
